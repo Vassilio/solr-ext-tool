@@ -41,6 +41,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 	private final static String DIH_CONFIG_DATASOURCE_TYPE = "type";//驱动类型
 	private final static String DIH_CONFIG_DATASOURCE_URL = "url";//数据库地址
 	private final static String DIH_CONFIG_DATASOURCE_USER = "user";//数据库用户
+	private final static String DIH_CONFIG_DATASOURCE_BATCHSIZE = "batchSize";//批量提交
 	/**
 	 * 构造方法(配置文件路径默认为/configs/myconf)
 	 * @param zkServer zookeeper服务地址
@@ -162,6 +163,9 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		dataSourceEle.addAttribute(DIH_CONFIG_DATASOURCE_TYPE, dataSource.getType());
 		dataSourceEle.addAttribute(DIH_CONFIG_DATASOURCE_URL, dataSource.getUrl());
 		dataSourceEle.addAttribute(DIH_CONFIG_DATASOURCE_USER, dataSource.getUser());
+		if(null!=dataSource.getBatchSize()){
+			dataSourceEle.addAttribute(DIH_CONFIG_DATASOURCE_BATCHSIZE, dataSource.getBatchSize());
+		}
 		this.setConfig(document);
 		return document;
 	}
@@ -274,10 +278,12 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		String type = dsEle.attributeValue(DIH_CONFIG_DATASOURCE_TYPE);
 		String url = dsEle.attributeValue(DIH_CONFIG_DATASOURCE_URL);
 		String user = dsEle.attributeValue(DIH_CONFIG_DATASOURCE_USER);
+		String batchSize = dsEle.attributeValue(DIH_CONFIG_DATASOURCE_BATCHSIZE);
 		DataSource ds = new DataSource();
 		ds.setName(name);
 		ds.setDriver(driver);
 		ds.setPassword(password);
+		ds.setBatchSize(batchSize);
 		// ds.setType(type);
 		ds.setUrl(url);
 		ds.setUser(user);
@@ -353,5 +359,20 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 				documentEle.remove(entityEle);
 			}
 		}
+	}
+	public static void main(String[] args) throws IOException, DocumentException {
+		StructureConfigurable configurable = new StructureConfigurableImp("localhost:8686");
+		System.out.println(configurable.getDataSources());
+		DataSource ds = new DataSource();
+		ds.setDriver("oracle.jdbc.driver.OracleDriver");
+		ds.setName("test_batchsize");
+		ds.setPassword("dms");
+		ds.setUrl("jdbc:oracle:thin:@10.110.1.12:1521:jcdb");
+		ds.setUser("dms");
+		ds.setBatchSize("100");
+		configurable.saveOrUpdateDataSource(ds);
+		configurable.deleteDataSource(ds);
+		System.out.println(configurable.getDataSources());
+		
 	}
 }

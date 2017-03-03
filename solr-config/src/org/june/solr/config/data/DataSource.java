@@ -13,6 +13,7 @@ public class DataSource {
 				+ "type=\"%s\" "
 				+ "url=\"%s\" "
 				+ "user=\"%s\" "
+				+ "batchSize=\"%s\" "
 			+ "/>";
 	private String name;
 	private String driver;
@@ -60,7 +61,7 @@ public class DataSource {
 	}
 	@Override
 	public String toString(){
-		return String.format(template, name,driver,password,type,url,user);
+		return String.format(template, name,driver,password,type,url,user,batchSize);
 	}
 	public void parse(String xmlString){
 		
