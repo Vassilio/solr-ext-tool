@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>solr-show</title>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="css/font-awesome.css" />
+<link rel="stylesheet" type="text/css" href="css/jBootstrapPage.css" />
+<style>
+.container {
+	width: 100%;
+	min-width: 800px;
+}
+
+/*表单中日期组件图标样式配覆盖width:auto*/
+.date-input-btn {
+	width: 1%;
+}
+
+/*设置标题的文字样式*/
+.htext {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+/*设置分割线的上下间距*/
+hr.fenge {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/*表单中表单组间距*/
+.form-group {
+	margin-bottom: 10px !important;
+}
+
+.Validform_checktip {
+	font-size: 14px;
+}
+</style>
+
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jBootstrapPage.js"></script>
+<script type="text/javascript" src="js/arttemplate.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/tabletemplate_db.js"></script>
+<script type="text/javascript" src="js/tabletemplate_list.js"></script>
+<script type="text/javascript" src="js/tabletemplate_detail.js"></script>
+<script type="text/javascript">
+	var solrUrl = "http://localhost:7676/solr/case/select";
+	$(function() {
+		//initTemplate(context);//初始化展示模板、展开更多模板和详情页链接
+	});
+	function callback(data){
+		alert("操作成功");
+		console.log(data);
+	}
+	var pageNum=0;//当前页码，默认第1页
+	var pageRecreate=1;//0代表不重新创建分页，1代表重新创建分页
+	function rePageSearch(){//本次搜索需重新创建分页
+		pageNum=0;//当前页码归零
+		pageRecreate=1;//设置重新创建分页
+		document.getElementById("pageUL").innerHTML="";//分页栏清空
+		search();//执行搜索
+	}
+	function search(){
+		var q = document.getElementById('q').value; 
+		$.ajax({
+			url: solrUrl,
+			type:"post",
+			data : {
+				q : q,
+				"start" : pageNum*10,
+				"rows" : 10,
+				wt : 'json',
+				indent : true,
+				'hl.fl':'*',
+				hl:true,
+				'json.wrf' : 'success'
+			},
+			dataType : 'jsonp'
+		});
+	}
+	var success = function(data) {
+		document.getElementById('searchResult').value = JSON.stringify(data);
+		var showStr = showTabInfo_list(data);
+		document.getElementById('showHtml').innerHTML = showStr;
+		if(pageRecreate==1){//需要创建分页时，获取查询总条数
+			var numFound=data.response.numFound;
+			if(numFound==null||numFound==undefined||numFound==0){
+				numFound=1;
+			}
+			createPage(10, 10, numFound);
+		}
+	};
+	//页码点击事件，获取第n页
+	function getPage(i){
+		pageNum=i;
+		search();
+	}
+	//创建分页，pageSize-每页显示数据条数，buttons-显示多少个页码按钮，total-总条数
+	function createPage(pageSize, buttons, total) {
+	    $(".pagination").jBootstrapPage({
+	        pageSize : pageSize,
+	        total : total,
+	        maxPageButton:buttons,
+	        onPageClicked: function(obj, pageIndex) {
+	        	pageRecreate=0;//点击页码执行搜索时，不重新创建分页
+	        	getPage(pageIndex);
+	        }
+	    });
+	}
+</script>
+</head>
+<body>
+	<div class="container" id="sandbox-container1">
+		<br />
+		<div class="col-xs-12 col-md-12">
+			<form class="form-horizontal" id="saveForm" name="saveForm"
+				onsubmit="return false">
+				<div class="form-group">
+					<label class="col-xs-1 col-md-1 control-label">条件<span
+						class="required">*</span></label>
+					<div class="col-xs-2 col-md-2">
+						<input class="form-control ue-form" id="q" value='路' />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-1 col-md-1 control-label">结果<span
+						class="required">*</span></label>
+					<div class="col-xs-11 col-md-11">
+						<textarea id="searchResult" class="form-control ue-form" rows="6"></textarea>
+
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-1 col-md-1 control-label">展示内容<span
+						class="required">*</span></label>
+					<div class="col-xs-11 col-md-11" id="showHtml"></div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-1 col-md-1 control-label"></label>
+					<nav>
+						<ul class="pagination jys-pagination" id="pageUL">
+						</ul>
+					</nav>
+				</div>
+				<label class="col-xs-1 col-md-1 control-label"></label>
+				<div class="col-xs-11 col-md-11">
+					<button type="button" class="btn ue-btn-primary"
+						onclick="rePageSearch()">search</button>
+					<span id="msgdemo"></span>
+				</div>
+			</form>
+		</div>
+	</div>
+	<hr />
+</body>
+</html>
