@@ -1,0 +1,1 @@
+java -Dbootstrap_confdir=./solr/all/conf -Dcollection.configName=myconf -DzkRun -DzkHost=localhost:8686 -DnumShards=1 -Djetty.port=7686 -jar start.jar

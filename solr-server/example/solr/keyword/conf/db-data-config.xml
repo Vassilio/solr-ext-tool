@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<dataConfig>
+	<dataSource name="outer" driver="oracle.jdbc.driver.OracleDriver" password="dms" type="JdbcDataSource" url="jdbc:oracle:thin:@10.110.1.12:1521:jcdb" user="dms" />
+	<dataSource name="case" driver="com.mysql.jdbc.Driver" password="root" type="JdbcDataSource" url="jdbc:mysql://10.110.1.117:3308/iwsp?useUnicode=true" user="root" />
+	<document>
+		<!--煤气天然气信息-->
+		<entity dataSource="outer"
+			deltaImportQuery="select t.*,'jcy_gas_info' tablename,'business' groupname from jcy_gas_info t where t.GAS_ID='${dataimporter.delta.GAS_ID}'"
+			deltaQuery="select GAS_ID from jcy_gas_info where update_time>'${dataimporter.last_index_time}'"
+			name="jcy_gas_info" pk="GAS_ID"
+			query="select t.*,'jcy_gas_info' tablename,'business' groupname from jcy_gas_info t">
+			<field column="GAS_ID" name="id" />
+			<field column="USER_NAME" name="USER_NAME_t" />
+			<field column="CONNECT_ADDRESS" name="CONNECT_ADDRESS_t" />
+			<field column="CONNECT_PHONE" name="CONNECT_PHONE_t" />
+			<field column="ORGAN_CODE" name="ORGAN_CODE_t" />
+			<field column="CARD_NUMBER" name="CARD_NUMBER_t" />
+		</entity>
+		<entity dataSource="case"
+			deltaImportQuery="select t.*,'case' tablename,'business' groupname from jcy_case_info t where t.CASE_ID='${dataimporter.delta.CASE_ID}'"
+			deltaQuery="select CASE_ID from jcy_case_info where update_time>'${dataimporter.last_index_time}'"
+			name="case" pk="CASE_ID"
+			query="select t.*,t.CASE_ID caseId,'case' tablename,'business' groupname from jcy_case_info t">
+			<field column="CASE_ID" name="id" />
+			<field column="CASE_NAME" name="CASE_NAME_txt" />
+			<field column="CRT_USER_ID" name="crtUser" />
+			<field column="CRT_USER_NAME" name="CRT_USER_NAME_t" />
+			<field column="CASE_SOURCE" name="CASE_SOURCE_os" />
+			<field column="CASE_TIME" name="CASE_TIME_os" />
+			<field column="CASE_TIME" name="creattime_inc" />
+			<field column="CASE_DESC" name="CASE_DESC_txt" />
+			<field column="AUTH_NO" name="AUTH_NO_os" />
+			<field column="NAME" name="NAME_txt" />
+			<field column="SEX" name="SEX_os" />
+			<field column="AGE" name="AGE_os" />
+			<field column="BIRTHDAY" name="BIRTHDAY_os" />
+			<field column="CASE_TYPE" name="CASE_TYPE_os" />
+			<field column="ID_CARD" name="ID_CARD_txt" />
+			<field column="UNDERTAKER_ORGAN_NAME" name="UNDERTAKER_ORGAN_NAME_txt" />
+			<field column="CASE_STATUS" name="caseStatus" />	
+			<entity dataSource="case"
+				parentDeltaQuery="select CASE_ID  from case where CASE_ID=${undertaker.CASE_ID}"
+				deltaQuery="select CASE_ID from jcy_case_undertaker_info where update_time>'${dataimporter.last_index_time}'"
+				name="undertaker"
+				query="select t.* from jcy_case_undertaker_info t where t.CASE_ID='${case.CASE_ID}'">
+				<field column="UNDERTAKER_USER_NAME" name="UNDERTAKER_USER_NAME_txt" />
+				<field column="UNDERTAKER_USER_ID" name="underTaker" />
+			</entity>
+			<entity dataSource="case"
+				parentDeltaQuery="select CASE_ID  from case where CASE_ID=${file.CASE_ID}"
+				deltaQuery="select CASE_ID from jcy_file_info where update_time>'${dataimporter.last_index_time}' and file_type!='03'"
+				name="file" pk="FILE_ID"
+				query="select * from jcy_file_info where CASE_ID='${case.CASE_ID}' and file_type!='03'">
+				<field column="FILE_ID" name="file_FILE_ID_os" />
+				<field column="FILE_NAME" name="file_FILE_NAME_txt" />
+				<field column="FILE_PATH" name="file_FILE_PATH_os" />
+			</entity>
+			<entity dataSource="case"
+				parentDeltaQuery="select CASE_ID  from case where CASE_ID=${queried.CASE_ID}"
+				deltaQuery="select CASE_ID from jcy_case_queried_info where update_time>'${dataimporter.last_index_time}'"
+				name="queried"
+				query="select CONCAT_WS(' ',name,sex,age,id_card,tel,COMPANY_POSITION) queried_txt from jcy_case_queried_info where CASE_ID='${case.CASE_ID}'">
+			</entity>
+			<entity dataSource="case"
+				parentDeltaQuery="select CASE_ID  from case where CASE_ID=${parties.CASE_ID}"
+				deltaQuery="select CASE_ID from jcy_case_parties_info where update_time>'${dataimporter.last_index_time}'"
+				name="parties"
+				query="select CONCAT_WS(' ',name,sex,age,id_card,tel,COMPANY_POSITION) parties_txt from jcy_case_parties_info where CASE_ID='${case.CASE_ID}'">
+			</entity>
+		</entity>
+		<entity dataSource="case"
+			deltaImportQuery="select t.*,'privateFile' tablename,'business' groupname from jcy_file_info t where t.FILE_ID='${dataimporter.delta.FILE_ID}'"
+			deltaQuery="select FILE_ID from jcy_file_info where update_time>'${dataimporter.last_index_time}'"
+			name="file" pk="FILE_ID"
+			query="select t.*,'file' tablename,'business' groupname from jcy_file_info t">
+			<field column="FILE_ID" name="id" />
+			<field column="FILE_NAME" name="FILE_NAME_t" />
+			<field column="FILE_PATH" name="FILE_PATH_os" />
+			<field column="FILE_TYPE" name="fileType" />
+			<field column="CASE_ID" name="caseId" />
+			<field column="CRT_USER_ID" name="crtUser" />
+			<field column="CRT_USER_NAME" name="CRT_USER_NAME_t" />
+		</entity>
+		<!--设备信息-->
+		<entity dataSource="outer"
+			deltaImportQuery="select t.*,'jcy_device_info' tablename,'business' groupname from jcy_device_info t where t.ID='${dataimporter.delta.ID}'"
+			deltaQuery="select ID from jcy_device_info where update_time>'${dataimporter.last_index_time}'"
+			name="jcy_device_info" pk="ID"
+			query="select t.*,'jcy_device_info' tablename,'business' groupname from jcy_device_info t">
+			<field column="ID" name="id" />
+			<!--设备名称-->
+			<field column="DEVICE_NAME" name="DEVICE_NAME_t" />
+			<!--设备型号/规格-->
+			<field column="DEVICE_MODEL" name="DEVICE_MODEL_t" />
+			<!--基本参数-->
+			<field column="BASIC_PARAMETER" name="BASIC_PARAMETER_t" />
+			<!--使用系统-->
+			<field column="USE_SYSTEM" name="USE_SYSTEM_t" />
+			<!--安装地点-->
+			<field column="INSTALL_LOCATION" name="INSTALL_LOCATION_t" />
+			<!--中标公司-->
+			<field column="WIN_COMPANY" name="WIN_COMPANY_t" />
+			<!--设备数量-->
+			<field column="DEVICE_NUM" name="DEVICE_NUM_s" />
+			<!--单位-->
+			<field column="UNIT" name="UNIT_s" />
+			<!--创建时间-->
+			<field column="CREAT_TIME" name="creattime_inc"/>	
+			<field column="CREAT_TIME" name="CREAT_TIME_s"/>			
+		</entity>
+	</document>
+</dataConfig>
