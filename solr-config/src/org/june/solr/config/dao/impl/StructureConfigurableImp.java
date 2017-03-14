@@ -76,6 +76,18 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		}
 
 		Element entityEle = documentEle.addElement(DIH_CONFIG_ENTITY);
+		addEntity(entityEle,entity);
+		
+		this.setConfig(document);
+		return document;
+	}
+	/**
+	 * 递归添加entity dom节点
+	 * @param entityEle
+	 * @param entity
+	 */
+	private void addEntity(Element entityEle,Entity entity){
+		//节点属性
 		entityEle.addAttribute(DIH_CONFIG_ENTITY_DATASOURCE, entity.getDataSource().getName());
 		entityEle.addAttribute(DIH_CONFIG_ENTITY_QUERY, entity.getQuery());
 		entityEle.addAttribute(DIH_CONFIG_ENTITY_DELTAIMPORTQUERY, entity.getDeltaImportQuery());
@@ -86,16 +98,19 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		entityEle.addAttribute(DIH_CONFIG_ENTITY_UPDATEFIELD, entity.getUpdateField());
 		entityEle.addAttribute(DIH_CONFIG_ENTITY_TIMEFIELD, entity.getTimeField());
 		entityEle.addAttribute(DIH_CONFIG_ENTITY_GROUPNAME, entity.getGroupname());
+		//field节点
 		for (Column column : entity.getColumns()) {
 			Element field = entityEle.addElement(DIH_CONFIG_ENTITY_FIELD);
 			field.addAttribute(DIH_CONFIG_ENTITY_FIELD_COLUMN, column.getName());
 			field.addAttribute(DIH_CONFIG_NAME, column.getAlias());
 			field.addAttribute(DIH_CONFIG_ENTITY_FIELD_CNAME, column.getCname());
+		}		
+		//entity节点
+		for(Entity child:entity.getChildren()){
+			Element childEntity = entityEle.addElement(DIH_CONFIG_ENTITY);
+			addEntity(childEntity,child);
 		}
-		this.setConfig(document);
-		return document;
 	}
-
 	@Override
 	public List<Entity> getEntitys() throws DocumentException {
 		return this.getEntitys(null);
@@ -262,6 +277,12 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 			column.setCname(cname);
 			entity.getColumns().add(column);
 		}
+		List<Element> children = entityEle.elements(DIH_CONFIG_ENTITY);
+		for(Element childEle:children){
+			//递归获取子实体
+			Entity child = element2Entity(document,childEle);
+			entity.getChildren().add(child);
+		}
 		return entity;
 	}
 
@@ -371,7 +392,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		ds.setUser("dms");
 		ds.setBatchSize("100");
 		configurable.saveOrUpdateDataSource(ds);
-		configurable.deleteDataSource(ds);
+		//configurable.deleteDataSource(ds);
 		System.out.println(configurable.getDataSources());
 		
 	}

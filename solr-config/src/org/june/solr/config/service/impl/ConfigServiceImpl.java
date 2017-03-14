@@ -54,14 +54,11 @@ public class ConfigServiceImpl implements ConfigServiceInterface {
 	public static void main(String[] args) throws Exception {
 		ConfigServiceImpl cs = new ConfigServiceImpl("localhost:8686");
 		DataSource ds = new DataSource();
-		ds.setDriver("oracle.jdbc.driver.OracleDriver");
-		ds.setName("outer");
-		ds.setPassword("dms");
-		ds.setUrl("jdbc:oracle:thin:@10.110.1.12:1521:jcdb");
-		ds.setUser("dms");
+		ds.setName("case");
 		Entity table = new Entity();
 		table.setDataSource(ds);
-		table.setTablename("test_entity123");
+		table.setTablename("jcy_case_info");
+		//table.setTablename("case");
 		table.setTablecname("案件信息");
 		table.setGroupname("business");
 		table.setPkField("CASE_ID");
@@ -70,11 +67,32 @@ public class ConfigServiceImpl implements ConfigServiceInterface {
 		Column colum2 = new Column();
 		colum2.setName("CASE_NAME");
 		colum2.setCname("案件名称");
-		colum2.setDataType("string");
-		colum2.setAlias("CASE_NAME_t");
 		List<Column> list = new ArrayList<Column>();
 		list.add(colum2);
 		table.setColumns(list);
+		
+		//children
+		Entity table1 = new Entity();
+		table1.setDataSource(ds);
+		table1.setTablename("jcy_case_undertaker_info");
+		table1.setTablecname("子信息");
+		table1.setGroupname("business");
+		table1.setPkField("UNDERTAKER_INFO_ID");
+		table1.setParent(table);
+		table1.setForeignKey("CASE_ID");
+		Column colum = new Column();
+		colum.setName("auth_no");
+		colum.setCname("权限编号");
+		List<Column> list1 = new ArrayList<Column>();
+		list1.add(colum);
+		Column colum1 = new Column();
+		colum1.setName("CASE_NAME");
+		colum1.setCname("案件名称");
+		list1.add(colum1);
+		table1.setColumns(list1);
+		
+		table.getChildren().add(table1);
+		//table.getChildren().add(table1);
 		table.init();
 		cs.saveOrUpdateEntity(table);	
 		//cs.deleteEntity(table);

@@ -22,6 +22,8 @@ public class Table {
 	private String groupname;
 	//时间字段
 	private String timeField;
+	//外键
+	private String foreignKey;
 	//列
 	List<Column> columns = new ArrayList<Column>();
 	public DataSource getDataSource() {
@@ -71,5 +73,11 @@ public class Table {
 	}
 	public void setTimeField(String timeField) {
 		this.timeField = timeField;
+	}
+	public String getForeignKey() {
+		return foreignKey;
+	}
+	public void setForeignKey(String foreignKey) {
+		this.foreignKey = foreignKey;
 	}
 }
