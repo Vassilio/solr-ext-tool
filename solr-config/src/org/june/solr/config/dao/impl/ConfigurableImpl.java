@@ -11,6 +11,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.june.solr.config.dao.AfterWatcher;
 import org.june.solr.config.dao.Configurable;
 
 public class ConfigurableImpl implements Configurable {
@@ -21,7 +22,6 @@ public class ConfigurableImpl implements Configurable {
 	private String zkServer;
 	// zookeeper节点树配置文件路径
 	private String basePath;
-
 	public ConfigurableImpl(String zkServer) throws IOException {
 		this(zkServer, "/configs/myconf");
 	}
@@ -31,11 +31,33 @@ public class ConfigurableImpl implements Configurable {
 		Watcher watcher = new Watcher() {
 			public void process(WatchedEvent event) {
 			}
-		};
+		};		
 		this.basePath = basePath;
 		zooKeeper = new ZooKeeper(zkServer, SESSION_TIMEOUT, watcher);
 	}
+	@Override
+	public void addWatcher(final String pathPart,final Watcher watcher) throws KeeperException, InterruptedException{
+		final String path = basePath + "/" + pathPart;
+		zooKeeper.exists(path, new AfterWatcher(){
+			@Override
+			public void afterProcess() {
+				try {
+					addWatcher(pathPart,watcher);	
+					LOGGER.info("【再监听成功】"+path);	
+				} catch (KeeperException e) {
+					LOGGER.error("【再监听失败】"+path+"\n"+e.getMessage());					
+				} catch (InterruptedException e) {
+					LOGGER.error("【再监听失败】"+path+"\n"+e.getMessage());
+				}				
+			}
 
+			@Override
+			public void inProcess(WatchedEvent arg0) {				
+				watcher.process(arg0);
+				LOGGER.info("【监听执行成功】"+arg0);	
+			}			
+		});
+	}
 	/**
 	 * 销毁方法
 	 * 

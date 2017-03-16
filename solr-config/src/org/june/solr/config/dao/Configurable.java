@@ -2,6 +2,9 @@ package org.june.solr.config.dao;
 
 import java.util.List;
 
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
+
 /**
  * 配置文件修改
  * @author lwp
@@ -25,4 +28,12 @@ public interface Configurable {
 	 * @return
 	 */
 	public List<String> getConfigNodes();
+	/**
+	 * 增加监听
+	 * @param path 路径
+	 * @param watcher 监听实现
+	 * @throws KeeperException
+	 * @throws InterruptedException
+	 */
+	public void addWatcher(final String path,final Watcher watcher) throws KeeperException, InterruptedException;
 }

@@ -5,6 +5,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -381,9 +384,15 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 			}
 		}
 	}
-	public static void main(String[] args) throws IOException, DocumentException {
-		StructureConfigurable configurable = new StructureConfigurableImp("localhost:8686");
-		System.out.println(configurable.getDataSources());
+	public static void main(String[] args) throws IOException, DocumentException, KeeperException, InterruptedException {
+		StructureConfigurableImp configurable = new StructureConfigurableImp("localhost:8686");
+		configurable.addWatcher(DIH_CONFIG, new Watcher(){
+			@Override
+			public void process(WatchedEvent arg0) {
+				//System.out.println("【节点变动】"+arg0);				
+			}
+			
+		});	
 		DataSource ds = new DataSource();
 		ds.setDriver("oracle.jdbc.driver.OracleDriver");
 		ds.setName("test_batchsize");
@@ -392,8 +401,10 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		ds.setUser("dms");
 		ds.setBatchSize("100");
 		configurable.saveOrUpdateDataSource(ds);
-		//configurable.deleteDataSource(ds);
-		System.out.println(configurable.getDataSources());
-		
+		configurable.deleteDataSource(ds);
+		configurable.saveOrUpdateDataSource(ds);
+		configurable.deleteDataSource(ds);
+		configurable.saveOrUpdateDataSource(ds);
+		configurable.deleteDataSource(ds);
 	}
 }
