@@ -1,19 +1,20 @@
-package org.june.solr.config.dao;
+package org.june.solr.config.dih.core;
 
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.june.solr.config.data.DataSource;
-import org.june.solr.config.data.Entity;
+import org.june.solr.config.dih.data.*;
 
 /**
  * 结构化配置
  * @author lwp
  *
  */
-public interface StructureConfigurable {
+public interface StructureConfigurable{
 	/**
 	 * 创建实体,如存在则更新
 	 * @param entity
@@ -70,4 +71,12 @@ public interface StructureConfigurable {
 	 * @throws IOException 
 	 */
 	public Document deleteDataSource(DataSource dataSource) throws DocumentException, IOException;
+	/**
+	 * 增加监听
+	 * @param path 监听路径
+	 * @param watcher 监听实现
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 */
+	public void addWatcher(String path,Watcher watcher) throws KeeperException, InterruptedException;
 }

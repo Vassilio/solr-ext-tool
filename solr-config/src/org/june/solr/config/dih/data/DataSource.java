@@ -1,4 +1,4 @@
-package org.june.solr.config.data;
+package org.june.solr.config.dih.data;
 /**
  * 数据源信息
  * @author lwp

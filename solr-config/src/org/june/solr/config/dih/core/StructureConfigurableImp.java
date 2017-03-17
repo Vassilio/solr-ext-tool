@@ -1,4 +1,4 @@
-package org.june.solr.config.dao.impl;
+package org.june.solr.config.dih.core;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -14,14 +14,15 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.june.solr.config.dao.StructureConfigurable;
-import org.june.solr.config.data.*;
+import org.june.solr.config.dih.data.*;
+import org.june.zookeeper.Configurable;
+import org.june.zookeeper.ConfigurableImpl;
 /**
  * db-data-config.xml配置管理工具
  * @author lwp
  *
  */
-public class StructureConfigurableImp extends ConfigurableImpl implements StructureConfigurable {
+public class StructureConfigurableImp implements StructureConfigurable {
 	
 	private final static String DIH_CONFIG = "db-data-config.xml";//DIH配置文件名称	
 	private final static String DIH_CONFIG_DOCUMENT = "document";//配置文件内部document标签
@@ -45,13 +46,14 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 	private final static String DIH_CONFIG_DATASOURCE_URL = "url";//数据库地址
 	private final static String DIH_CONFIG_DATASOURCE_USER = "user";//数据库用户
 	private final static String DIH_CONFIG_DATASOURCE_BATCHSIZE = "batchSize";//批量提交
+	private Configurable configurable = null;//zookpeeper文件管理接口
 	/**
 	 * 构造方法(配置文件路径默认为/configs/myconf)
 	 * @param zkServer zookeeper服务地址
 	 * @throws IOException
 	 */
 	public StructureConfigurableImp(String zkServer) throws IOException {
-		super(zkServer);
+		configurable = new ConfigurableImpl(zkServer);
 	}
 	/**
 	 * 构造方法
@@ -60,11 +62,14 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 	 * @throws IOException
 	 */
 	public StructureConfigurableImp(String zkServer,String basePath) throws IOException {
-		super(zkServer,basePath);
+		configurable = new ConfigurableImpl(zkServer,basePath);
 	}	
 	@Override
 	public Document saveOrUpdateEntity(Entity entity) throws DocumentException, IOException {
-		String xmlStr = this.getConfig(DIH_CONFIG);
+		if(entity.getQuery()==null){
+			entity.init();
+		}
+		String xmlStr = configurable.getConfig(DIH_CONFIG);
 		Document document = DocumentHelper.parseText(xmlStr);
 		Element root = document.getRootElement();
 		Element documentEle = root.element(DIH_CONFIG_DOCUMENT);
@@ -122,7 +127,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 	@Override
 	public Document deleteEntity(Entity entity) throws DocumentException, IOException {
 		List<Entity> result = new ArrayList();
-		String xmlStr = this.getConfig(DIH_CONFIG);
+		String xmlStr = configurable.getConfig(DIH_CONFIG);
 		Document document = DocumentHelper.parseText(xmlStr);
 		Element root = document.getRootElement();
 		Element documentEle = root.element(DIH_CONFIG_DOCUMENT);
@@ -144,7 +149,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 
 	public List<DataSource> getDataSources(String name) throws DocumentException {
 		List<DataSource> result = new ArrayList();
-		String xmlStr = this.getConfig(DIH_CONFIG);
+		String xmlStr = configurable.getConfig(DIH_CONFIG);
 		Document document = DocumentHelper.parseText(xmlStr);
 		Element root = document.getRootElement();
 		List<Element> dsList = (List<Element>) root.elements(DIH_CONFIG_ENTITY_DATASOURCE);
@@ -165,7 +170,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 
 	@Override
 	public Document saveOrUpdateDataSource(DataSource dataSource) throws DocumentException, IOException {
-		String xmlStr = this.getConfig(DIH_CONFIG);
+		String xmlStr = configurable.getConfig(DIH_CONFIG);
 		Document document = DocumentHelper.parseText(xmlStr);
 		Element root = document.getRootElement();
 		Element ele = dataSourceExist(document, dataSource);
@@ -220,7 +225,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 
 		XMLWriter xmlwriter = new XMLWriter(writer, format);
 		xmlwriter.write(document);
-		this.setConfig(DIH_CONFIG, writer.toString());
+		configurable.setConfig(DIH_CONFIG, writer.toString());
 	}
 
 	/**
@@ -334,7 +339,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 	@Override
 	public Document deleteDataSource(DataSource dataSource) throws DocumentException, IOException {
 		List<DataSource> result = new ArrayList();
-		String xmlStr = this.getConfig(DIH_CONFIG);
+		String xmlStr = configurable.getConfig(DIH_CONFIG);
 		Document document = DocumentHelper.parseText(xmlStr);
 		Element root = document.getRootElement();
 		List<Element> dataSources = root.elements(DIH_CONFIG_ENTITY_DATASOURCE);
@@ -352,7 +357,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 	@Override
 	public List<Entity> getEntitys(String name) throws DocumentException {
 		List<Entity> result = new ArrayList();
-		String xmlStr = this.getConfig(DIH_CONFIG);
+		String xmlStr = configurable.getConfig(DIH_CONFIG);
 		Document document = DocumentHelper.parseText(xmlStr);
 		Element root = document.getRootElement();
 		Element documentEle = root.element(DIH_CONFIG_DOCUMENT);
@@ -385,7 +390,7 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		}
 	}
 	public static void main(String[] args) throws IOException, DocumentException, KeeperException, InterruptedException {
-		StructureConfigurableImp configurable = new StructureConfigurableImp("localhost:8686");
+		StructureConfigurable configurable = new StructureConfigurableImp("localhost:8686");
 		configurable.addWatcher(DIH_CONFIG, new Watcher(){
 			@Override
 			public void process(WatchedEvent arg0) {
@@ -406,5 +411,9 @@ public class StructureConfigurableImp extends ConfigurableImpl implements Struct
 		configurable.deleteDataSource(ds);
 		configurable.saveOrUpdateDataSource(ds);
 		configurable.deleteDataSource(ds);
+	}
+	@Override
+	public void addWatcher(String path, Watcher watcher) throws KeeperException, InterruptedException {
+		this.configurable.addWatcher(path, watcher);		
 	}
 }

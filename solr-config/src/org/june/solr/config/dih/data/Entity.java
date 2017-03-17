@@ -1,5 +1,6 @@
-package org.june.solr.config.data;
+package org.june.solr.config.dih.data;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,19 +25,23 @@ public class Entity extends Table {
 	private String query;
 	private List<Entity> children = new ArrayList<Entity>();//子实体
 	private Entity parent = null;//父实体
-	public void init() throws Exception{
+	/**
+	 * 根据基本信息初始化entity
+	 * @throws Exception
+	 */
+	public void init() throws IOException{
 		//验证数据
 		if(this.getPkField()==null){
-			throw new Exception("pkField is null");
+			throw new IOException("pkField is null");
 		}
 		if(this.getTablecname()==null){
-			throw new Exception("Tablecname is null");
+			throw new IOException("Tablecname is null");
 		}
 		if(this.getDataSource()==null){
-			throw new Exception("DataSource is null");
+			throw new IOException("DataSource is null");
 		}
 		if(this.getColumns()==null || this.getColumns().isEmpty()){
-			throw new Exception("Columns is null or empty");
+			throw new IOException("Columns is null or empty");
 		}
 		this.setName(this.getTablename());	
 		Map<String,Column> columnMap = new HashMap<String,Column>();

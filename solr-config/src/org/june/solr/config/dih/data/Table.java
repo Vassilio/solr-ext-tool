@@ -1,4 +1,4 @@
-package org.june.solr.config.data;
+package org.june.solr.config.dih.data;
 
 import java.util.ArrayList;
 import java.util.List;

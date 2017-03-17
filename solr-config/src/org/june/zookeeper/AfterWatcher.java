@@ -1,4 +1,4 @@
-package org.june.solr.config.dao;
+package org.june.zookeeper;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;

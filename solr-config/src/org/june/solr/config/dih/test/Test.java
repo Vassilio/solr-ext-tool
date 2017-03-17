@@ -1,4 +1,4 @@
-package org.june.solr.config.service.impl;
+package org.june.solr.config.dih.test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentException;
-import org.june.solr.config.dao.StructureConfigurable;
-import org.june.solr.config.dao.impl.StructureConfigurableImp;
-import org.june.solr.config.data.*;
-import org.june.solr.config.service.ConfigServiceInterface;
+import org.june.solr.config.dih.core.StructureConfigurable;
+import org.june.solr.config.dih.core.StructureConfigurableImp;
+import org.june.solr.config.dih.data.DataSource;
+import org.june.solr.config.dih.data.*;
 
 /**
  * 配置管理业务逻辑层接口实现
@@ -18,27 +18,23 @@ import org.june.solr.config.service.ConfigServiceInterface;
  *
  */
 
-public class ConfigServiceImpl implements ConfigServiceInterface {
-	private static Logger LOGGER = Logger.getLogger(ConfigServiceImpl.class);
+public class Test {
+	private static Logger LOGGER = Logger.getLogger(Test.class);
 	private StructureConfigurable configurable;//DIH配置文件操作类
 	/**
 	 * 
 	 * @param zkServer
 	 * @throws IOException
 	 */
-	public ConfigServiceImpl(String zkServer) throws IOException {
+	public Test(String zkServer) throws IOException {
 		configurable = new StructureConfigurableImp(zkServer);
 	}
 
-	@Override
 	public String saveOrUpdateEntity(Entity entity) {
 		LOGGER.info("【接口调用】saveOrUpdateEntity");
 		LOGGER.info("【参数】" + entity.toString());
 		String result = "success";
 		try {
-			// 初始化entity
-			entity.init();
-			// 修改配置文件
 			configurable.saveOrUpdateEntity(entity);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -52,7 +48,7 @@ public class ConfigServiceImpl implements ConfigServiceInterface {
 		configurable.deleteEntity(entity);
 	}
 	public static void main(String[] args) throws Exception {
-		ConfigServiceImpl cs = new ConfigServiceImpl("localhost:8686");
+		Test cs = new Test("localhost:8686");
 		DataSource ds = new DataSource();
 		ds.setName("case");
 		Entity table = new Entity();

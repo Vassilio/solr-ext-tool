@@ -1,4 +1,4 @@
-package org.june.solr.config.dao.impl;
+package org.june.zookeeper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,8 +11,6 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
-import org.june.solr.config.dao.AfterWatcher;
-import org.june.solr.config.dao.Configurable;
 
 public class ConfigurableImpl implements Configurable {
 	private static Logger LOGGER = Logger.getLogger(ConfigurableImpl.class);

@@ -1,4 +1,4 @@
-package org.june.solr.config.dao;
+package org.june.zookeeper;
 
 import java.util.List;
 
