@@ -47,6 +47,7 @@ public class StructureConfigurableImp implements StructureConfigurable {
 	private final static String DIH_CONFIG_DATASOURCE_USER = "user";//数据库用户
 	private final static String DIH_CONFIG_DATASOURCE_BATCHSIZE = "batchSize";//批量提交
 	private Configurable configurable = null;//zookpeeper文件管理接口
+	public StructureConfigurableImp(){}
 	/**
 	 * 构造方法(配置文件路径默认为/configs/myconf)
 	 * @param zkServer zookeeper服务地址
@@ -78,15 +79,15 @@ public class StructureConfigurableImp implements StructureConfigurable {
 		if (entitynow != null) {
 			documentEle.remove(entitynow);
 		}
-		// 不存在则增加ds
-		if (this.dataSourceExist(document, entity.getDataSource()) == null) {
-			document = this.saveOrUpdateDataSource(entity.getDataSource());
-		}
 
 		Element entityEle = documentEle.addElement(DIH_CONFIG_ENTITY);
 		addEntity(entityEle,entity);
 		
 		this.setConfig(document);
+		// 不存在则增加ds
+		if (this.dataSourceExist(document, entity.getDataSource()) == null) {
+			document = this.saveOrUpdateDataSource(entity.getDataSource());
+		}
 		return document;
 	}
 	/**
@@ -415,5 +416,11 @@ public class StructureConfigurableImp implements StructureConfigurable {
 	@Override
 	public void addWatcher(String path, Watcher watcher) throws KeeperException, InterruptedException {
 		this.configurable.addWatcher(path, watcher);		
+	}
+	public Configurable getConfigurable() {
+		return configurable;
+	}
+	public void setConfigurable(Configurable configurable) {
+		this.configurable = configurable;
 	}
 }

@@ -19,18 +19,28 @@ public class ConfigurableImpl implements Configurable {
 	// zookeeper服务地址
 	private String zkServer;
 	// zookeeper节点树配置文件路径
-	private String basePath;
+	private String basePath = "/configs/myconf";
+	public ConfigurableImpl(){}
 	public ConfigurableImpl(String zkServer) throws IOException {
 		this(zkServer, "/configs/myconf");
 	}
 
 	public ConfigurableImpl(String zkServer, String basePath) throws IOException {
-		this.zkServer = zkServer;
+		this.setBasePath(basePath);
+		this.setZkServer(zkServer);
+		this.initZk();
+	}
+	/**
+	 * 初始化
+	 * @param zkServer
+	 * @param basePath
+	 * @throws IOException
+	 */
+	public void initZk() throws IOException{
 		Watcher watcher = new Watcher() {
 			public void process(WatchedEvent event) {
 			}
 		};		
-		this.basePath = basePath;
 		zooKeeper = new ZooKeeper(zkServer, SESSION_TIMEOUT, watcher);
 	}
 	@Override
@@ -129,5 +139,29 @@ public class ConfigurableImpl implements Configurable {
 		}
 		reBuild();
 		return new ArrayList<String>();
+	}
+
+	public ZooKeeper getZooKeeper() {
+		return zooKeeper;
+	}
+
+	public void setZooKeeper(ZooKeeper zooKeeper) {
+		this.zooKeeper = zooKeeper;
+	}
+
+	public String getZkServer() {
+		return zkServer;
+	}
+
+	public void setZkServer(String zkServer) {
+		this.zkServer = zkServer;
+	}
+
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 }
