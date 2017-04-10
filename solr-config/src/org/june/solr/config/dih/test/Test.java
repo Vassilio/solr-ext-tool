@@ -72,7 +72,6 @@ public class Test {
 		table1.setDataSource(ds);
 		table1.setTablename("jcy_case_undertaker_info");
 		table1.setTablecname("子信息");
-		table1.setGroupname("business");
 		table1.setPkField("UNDERTAKER_INFO_ID");
 		table1.setParent(table);
 		table1.setForeignKey("CASE_ID");
@@ -89,7 +88,7 @@ public class Test {
 		
 		table.getChildren().add(table1);
 		//table.getChildren().add(table1);
-		table.init();
+		//table.init();
 		cs.saveOrUpdateEntity(table);	
 		//cs.deleteEntity(table);
 	}
