@@ -842,6 +842,7 @@
 	   <str name="shards.tolerant">true</str>
        <int name="rows">10</int>
        <str name="df">text</str>
+	   <!--高亮默认分片数量-->
 	   <int name="hl.snippets">4</int>
      </lst>
     <!-- In addition to defaults, "appends" params can be specified
@@ -1645,6 +1646,7 @@
                   default="true"
                   class="solr.highlight.GapFragmenter">
         <lst name="defaults">
+			<!--高亮单片长度-->
           <int name="hl.fragsize">50</int>
         </lst>
       </fragmenter>
