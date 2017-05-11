@@ -52,10 +52,12 @@ public class ConfigurableImpl implements Configurable {
 				try {
 					addWatcher(pathPart,watcher);	
 					LOGGER.info("【再监听成功】"+path);	
-				} catch (KeeperException e) {
-					LOGGER.error("【再监听失败】"+path+"\n"+e.getMessage());					
+				} catch (KeeperException e) {										
+					LOGGER.error("【再监听失败】"+path+"\n"+e.getMessage());	
+					reAddWatcher(pathPart,watcher);
 				} catch (InterruptedException e) {
 					LOGGER.error("【再监听失败】"+path+"\n"+e.getMessage());
+					reAddWatcher(pathPart,watcher);
 				}				
 			}
 
@@ -65,6 +67,16 @@ public class ConfigurableImpl implements Configurable {
 				LOGGER.info("【监听执行成功】"+arg0);	
 			}			
 		});
+	}
+	private void reAddWatcher(final String pathPart,final Watcher watcher){
+		reBuild();
+		try {
+			addWatcher(pathPart,watcher);
+		} catch (KeeperException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * 销毁方法
